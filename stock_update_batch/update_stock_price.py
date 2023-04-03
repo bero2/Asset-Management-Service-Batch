@@ -31,15 +31,7 @@ def fetch_all_stock_data_by_fdr() -> None:
     loop = asyncio.get_event_loop()
 
     async def _fetch_all_stock_data(_loop: asyncio.AbstractEventLoop) -> None:
-        pool = await aiomysql.create_pool(
-            host=db_config['host'],
-            port=int(db_config['port']),
-            user=db_config['user'],
-            password=db_config['password'],
-            db=db_config['db'],
-            autocommit=True,
-            loop=_loop
-        )
+        pool = await aiomysql.create_pool(host=db_config['host'], port=int(db_config['port']), user=db_config['user'], password=db_config['password'], db=db_config['db'], autocommit=True, loop=loop)
 
         stock_list = fdr.StockListing('KRX')[['Code', 'Name']].values.tolist()
 
@@ -75,15 +67,7 @@ def fetch_stock_data_by_pykrx(start_date: Optional[str], end_date: Optional[str]
     async def _fetch_stock_data_by_pykrx(_loop: asyncio.AbstractEventLoop, start_date: str, end_date: str) -> None:
         start_date = re.sub('[^0-9]', '', start_date)
         end_date = re.sub('[^0-9]', '', end_date)
-        pool = await aiomysql.create_pool(
-            host=db_config['host'],
-            port=int(db_config['port']),
-            user=db_config['user'],
-            password=db_config['password'],
-            db=db_config['db'],
-            autocommit=True,
-            loop=_loop
-        )
+        pool = await aiomysql.create_pool(host=db_config['host'], port=int(db_config['port']), user=db_config['user'], password=db_config['password'], db=db_config['db'], autocommit=True, loop=loop)
 
         ticker_list = stock.get_market_ticker_list(market='ALL')
         stock_list = []

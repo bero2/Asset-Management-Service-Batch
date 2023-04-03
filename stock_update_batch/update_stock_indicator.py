@@ -167,15 +167,7 @@ def insert_indicator_data(start_date: Optional[str], end_date: Optional[str]) ->
     loop = asyncio.get_event_loop()
 
     async def _insert_indicator_data(_loop: asyncio.AbstractEventLoop, start_date: str, end_date: str) -> None:
-        pool = await aiomysql.create_pool(
-            host=db_config['host'],
-            port=int(db_config['port']),
-            user=db_config['user'],
-            password=db_config['password'],
-            db=db_config['db'],
-            autocommit=True,
-            loop=_loop
-        )
+        pool = await aiomysql.create_pool(host=db_config['host'], port=int(db_config['port']), user=db_config['user'], password=db_config['password'], db=db_config['db'], autocommit=True, loop=loop)
 
         market_code_list = await load_all_market_code_data(pool)
 
@@ -202,4 +194,4 @@ if __name__ == "__main__":
     parser.add_argument('--end_date', type=str, default=None)
     args = parser.parse_args()
 
-    insert_indicator_data(start_date='2023-03-27', end_date='2023-03-30')
+    insert_indicator_data(start_date=args.start_date, end_date=args.end_date)
