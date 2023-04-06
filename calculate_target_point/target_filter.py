@@ -1,13 +1,7 @@
-import asyncio
-import configparser
-from typing import *
-
-import aiomysql
-import pandas as pd
-import numpy as np
-from load_data import *
-from dateutil.relativedelta import relativedelta
 from datetime import datetime
+
+import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 
 class TargetFilter:
@@ -60,10 +54,3 @@ class TargetFilter:
         ][['market_code', 'company_name', 'open_price', 'high_price', 'low_price', 'close_price']]
 
         return target_table.reset_index(drop=True)
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    data = loop.run_until_complete(load_target_company(loop, '2023-02-25'))
-    tf = TargetFilter(data, '2023-02-25')
-    print(tf.output())
