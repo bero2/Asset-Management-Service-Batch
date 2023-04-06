@@ -118,8 +118,14 @@ def calculate_indicator(dataframe: pd.DataFrame) -> pd.DataFrame:
     bb_low_cross = bollinger_band.bollinger_lband_indicator().rename('bollinger_band_low_cross')
     bb_high_cross = bollinger_band.bollinger_hband_indicator().rename('bollinger_band_high_cross')
 
-    # 일목균형표 선행스팬1, 선행스팬2, 기준선
+    # 일목균형표 선행스팬1, 선행스팬2, 기준선 (9, 26, 52)
     ichimoku = ta_trend.IchimokuIndicator(high=dataframe['high'], low=dataframe['low'])
+    ichimoku_span_a = ichimoku.ichimoku_a().rename('leading_span1')
+    ichimoku_span_b = ichimoku.ichimoku_b().rename('leading_span2')
+    ichimoku_base_line = ichimoku.ichimoku_base_line().rename('ichimoku_base_line')
+
+    # 일목균형표 선행스팬1, 선행스팬2, 기준선 (18, 52, 104)
+    ichimoku = ta_trend.IchimokuIndicator(high=dataframe['high'], low=dataframe['low'], window1=18, window2=52, window3=104)
     ichimoku_span_a = ichimoku.ichimoku_a().rename('leading_span1')
     ichimoku_span_b = ichimoku.ichimoku_b().rename('leading_span2')
     ichimoku_base_line = ichimoku.ichimoku_base_line().rename('ichimoku_base_line')
