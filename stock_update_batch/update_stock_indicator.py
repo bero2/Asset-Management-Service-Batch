@@ -78,14 +78,14 @@ async def update_indicator_data(pool: aiomysql.Pool, dataframe: pd.DataFrame) ->
                     market_code, company_name, open_price, high_price, low_price, close_price, volume, market_date,
                     ema_5, ema_10, ema_20, ema_60, ema_112, ema_224, 
                     bollinger_band_low, bollinger_band_high, bollinger_band_low_cross, bollinger_band_high_cross,
-                    leading_span1, leading_span2, ichimoku_base_line,
+                    leading_span1, leading_span2, ichimoku_base_line, leading_span1_double, leading_span2_double, ichimoku_base_line_double,
                     stochastic_k, stochastic_slow_d, rsi
                 ) 
                 VALUES (
                     %s, %s, %s, %s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s,
                     %s, %s, %s, %s,
-                    %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s,
                     %s, %s, %s
                 )
                 """,
@@ -93,7 +93,7 @@ async def update_indicator_data(pool: aiomysql.Pool, dataframe: pd.DataFrame) ->
                     'code', 'name', 'open', 'high', 'low', 'close', 'volume', 'date',
                     'ema_5', 'ema_10', 'ema_20', 'ema_60', 'ema_112', 'ema_224',
                     'bollinger_band_low', 'bollinger_band_high', 'bollinger_band_low_cross', 'bollinger_band_high_cross',
-                    'leading_span1', 'leading_span2', 'ichimoku_base_line',
+                    'leading_span1', 'leading_span2', 'ichimoku_base_line', 'leading_span1_double', 'leading_span2_double', 'ichimoku_base_line_double',
                     'stochastic_k', 'stochastic_slow_d', 'rsi'
                 ]].values.tolist()
             )
@@ -125,10 +125,10 @@ def calculate_indicator(dataframe: pd.DataFrame) -> pd.DataFrame:
     ichimoku_base_line = ichimoku.ichimoku_base_line().rename('ichimoku_base_line')
 
     # 일목균형표 선행스팬1, 선행스팬2, 기준선 (18, 52, 104)
-    ichimoku = ta_trend.IchimokuIndicator(high=dataframe['high'], low=dataframe['low'], window1=18, window2=52, window3=104)
-    ichimoku_span_a = ichimoku.ichimoku_a().rename('leading_span1')
-    ichimoku_span_b = ichimoku.ichimoku_b().rename('leading_span2')
-    ichimoku_base_line = ichimoku.ichimoku_base_line().rename('ichimoku_base_line')
+    ichimoku_double = ta_trend.IchimokuIndicator(high=dataframe['high'], low=dataframe['low'], window1=18, window2=52, window3=104)
+    ichimoku_span_a_double = ichimoku_double.ichimoku_a().rename('leading_span1_double')
+    ichimoku_span_b_double = ichimoku_double.ichimoku_b().rename('leading_span2_double')
+    ichimoku_base_line_double = ichimoku_double.ichimoku_base_line().rename('ichimoku_base_line_double')
 
     # (12, 5, 5) 스토캐스틱 슬로우
     stochastic = ta_momentum.StochasticOscillator(high=dataframe['high'], low=dataframe['low'], close=dataframe['close'], window=12, smooth_window=5)
@@ -154,6 +154,9 @@ def calculate_indicator(dataframe: pd.DataFrame) -> pd.DataFrame:
         ichimoku_span_a,
         ichimoku_span_b,
         ichimoku_base_line,
+        ichimoku_span_a_double,
+        ichimoku_span_b_double,
+        ichimoku_base_line_double,
         stochastic_k,
         stochastic_slow_d,
         rsi
