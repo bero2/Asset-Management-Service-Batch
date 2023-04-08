@@ -1,13 +1,7 @@
-import asyncio
-import configparser
-from typing import *
-
-import aiomysql
-import pandas as pd
-import numpy as np
-from load_data import *
-from dateutil.relativedelta import relativedelta
 from datetime import datetime
+
+import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 
 class TargetFilter:
@@ -46,22 +40,17 @@ class TargetFilter:
 
         return market_code_list
 
-    def output(self):
+    def output(self) -> pd.DataFrame:
         self._golden_cross('골든크로스_EMA112', 'close_price', 'ema_112')
         self._golden_cross('골든크로스_EMA224', 'close_price', 'ema_224')
         golden_cross_market_code_list = list(
             set(self._is_exist_golden_cross_in_period_filter(self.target_date, '골든크로스_EMA112', 20)) |
             set(self._is_exist_golden_cross_in_period_filter(self.target_date, '골든크로스_EMA224', 20))
         )
+
         target_table = self._table[
             (self._table['market_code'].isin(golden_cross_market_code_list)) &
             (self._table['market_date'] == self.target_date)
         ][['market_code', 'company_name', 'open_price', 'high_price', 'low_price', 'close_price']]
+
         return target_table.reset_index(drop=True)
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    data = loop.run_until_complete(load_target_company(loop, '2023-02-24'))
-    tf = TargetFilter(data, '2023-02-24')
-    print(tf.output())

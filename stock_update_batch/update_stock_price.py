@@ -27,6 +27,24 @@ async def insert_stock_data(pool: aiomysql.Pool, dataframe: pd.DataFrame) -> Non
             await conn.commit()
 
 
+def delete_null_data():
+    loop = asyncio.get_event_loop()
+
+    async def _delete_null_data(_loop: asyncio.AbstractEventLoop) -> None:
+        pool = await aiomysql.create_pool(host=db_config['host'], port=int(db_config['port']), user=db_config['user'], password=db_config['password'], db=db_config['db'], autocommit=True, loop=loop)
+
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute("""
+                    delete from stock_info
+                    where
+                        open_price = 0
+                """)
+                await conn.commit()
+
+    loop.run_until_complete(_delete_null_data(loop))
+
+
 def fetch_all_stock_data_by_fdr() -> None:
     loop = asyncio.get_event_loop()
 
@@ -51,7 +69,6 @@ def fetch_all_stock_data_by_fdr() -> None:
         pool.close()
 
     loop.run_until_complete(_fetch_all_stock_data(loop))
-    loop.close()
 
 
 def fetch_stock_data_by_pykrx(start_date: Optional[str], end_date: Optional[str]) -> None:
@@ -101,7 +118,6 @@ def fetch_stock_data_by_pykrx(start_date: Optional[str], end_date: Optional[str]
         pool.close()
 
     loop.run_until_complete(_fetch_stock_data_by_pykrx(loop, start_date, end_date))
-    loop.close()
 
 
 if __name__ == '__main__':
@@ -111,3 +127,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     fetch_stock_data_by_pykrx(start_date=args.start_date, end_date=args.end_date)
+    delete_null_data()
