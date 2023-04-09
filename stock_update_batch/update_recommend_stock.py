@@ -8,7 +8,7 @@ import aiomysql
 import pandas as pd
 
 config = configparser.ConfigParser()
-config.read(['./db_conf.ini', '/var/jenkins_home/python-script/db_conf.ini'])
+config.read(['../db_conf.ini', '/var/jenkins_home/python-script/db_conf.ini'])
 db_config: MutableMapping[str, str] = dict(config['mysql'])
 
 
@@ -355,7 +355,7 @@ async def update_stock_to_sell(loop: asyncio.AbstractEventLoop, target_date) -> 
 
 class UpdateRecommendStock:
     def __init__(self, target_date: Optional[str], max_hold_period: Optional[int], target_profit_rate: Optional[float]):
-        self.target_date = datetime.datetime.today().date() if target_date is None else target_date
+        self.target_date = datetime.datetime.today().date() - datetime.timedelta(days=1) if target_date is None else target_date
         self.max_hold_period = 180 if max_hold_period is None else max_hold_period
         self.target_profit_rate = 0.15 if target_profit_rate is None else target_profit_rate
 
