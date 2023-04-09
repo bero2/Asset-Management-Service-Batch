@@ -348,7 +348,7 @@ class UpdateRecommendStock:
 
     def _update_buy(self):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(update_stock_to_buy(loop, self.target_date))
+        loop.run_until_complete(update_stock_to_buy(loop, self.target_date, self.max_hold_period, self.target_profit_rate))
 
     def _update_additional_buy(self):
         loop = asyncio.get_event_loop()
