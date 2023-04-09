@@ -82,7 +82,6 @@ async def update_stock_to_buy(loop: asyncio.AbstractEventLoop, target_date: str)
                     , a.close_price as current_price
                     , '{target_date}' as find_date 
                     , '{target_date}' as first_find_date
---                     , a.close_price as average_price
                     , 'N' as buy_yn
                     , 'N' as buy_try_yn
                     , 'N' as additional_buy_yn
@@ -255,14 +254,8 @@ async def update_stock_to_expected_buy(loop: asyncio.AbstractEventLoop, target_d
                             when b.additional_buy_yn = 'Y' then 'Y'
                             else 'N'
                             end as buy_yn
-                        , case
-                            when b.additional_buy_yn = 'N' and (a.open_price * 0.98) >= a.low_price then {max_hold_period}
-                            when b.additional_buy_yn = 'Y' then {max_hold_period}
-                            end as max_hold_period
-                        , case
-                            when b.additional_buy_yn = 'N' and (a.open_price * 0.98) >= a.low_price then {target_profit_rate}
-                            when b.additional_buy_yn = 'Y' then {target_profit_rate}
-                            end as target_profit_rate 
+                        , {max_hold_period} as max_hold_period
+                        , {target_profit_rate} as target_profit_rate 
                     from stock_info_a_year as a
                     join base as b on a.market_code = b.market_code
                     where
