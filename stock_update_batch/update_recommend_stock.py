@@ -8,17 +8,17 @@ import aiomysql
 import pandas as pd
 
 config = configparser.ConfigParser()
-config.read(['../db_conf.ini', '/var/jenkins_home/python-script/db_conf.ini'])
+config.read(['./db_conf.ini', '/var/jenkins_home/python-script/db_conf.ini'])
 db_config: MutableMapping[str, str] = dict(config['mysql'])
 
 
-async def update_stock_to_buy(loop: asyncio.AbstractEventLoop, target_date: str) -> None:
+async def update_stock_to_buy(loop: asyncio.AbstractEventLoop, target_date: str, max_hold_period: int, target_profit_rate: float) -> None:
     pool = await aiomysql.create_pool(host=db_config['host'], port=int(db_config['port']), user=db_config['user'], password=db_config['password'], db=db_config['db'], autocommit=True, loop=loop)
 
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
             await cur.execute(f"""
-                replace into recommend_stock_info (market_code, company_name, current_price, find_date, first_find_date, buy_yn, buy_try_yn, additional_buy_yn, sell_yn, bucket)
+                replace into recommend_stock_info (market_code, company_name, current_price, find_date, first_find_date, buy_yn, buy_try_yn, additional_buy_yn, sell_yn, bucket, max_hold_period, target_profit_rate)
                 with filter1 as (
                     select
                         market_code
@@ -87,6 +87,8 @@ async def update_stock_to_buy(loop: asyncio.AbstractEventLoop, target_date: str)
                     , 'N' as additional_buy_yn
                     , 'N' as sell_yn
                     , 1 as bucket
+                    , {max_hold_period} as max_hold_period
+                    , {target_profit_rate} as target_profit_rate
                 from stock_info_a_year as a
                 join filter3 as b on a.market_code = b.market_code and a.market_date = b.market_date
             """)
@@ -189,26 +191,6 @@ async def update_stock_to_additional_buy(loop: asyncio.AbstractEventLoop, datafr
                 )
             await conn.commit()
     pool.close()
-
-
-async def _(loop: asyncio.AbstractEventLoop, target_date: str) -> pd.DataFrame:
-    pool = await aiomysql.create_pool(host=db_config['host'], port=int(db_config['port']), user=db_config['user'], password=db_config['password'], db=db_config['db'], autocommit=True, loop=loop)
-
-    async with pool.acquire() as conn:
-        async with conn.cursor() as cur:
-            await cur.execute(f"""
-
-            """)
-        result = await cur.fetchall()
-        columns = [x[0] for x in cur.description]
-
-    pool.close()
-
-    df = pd.DataFrame(
-        data=result,
-        columns=columns
-    )
-    return df
 
 
 async def update_stock_to_expected_buy(loop: asyncio.AbstractEventLoop, target_date: str, max_hold_period: int, target_profit_rate: float) -> None:
