@@ -341,9 +341,9 @@ class UpdateRecommendStock:
         self.max_hold_period = 180 if max_hold_period is None else max_hold_period
         self.target_profit_rate = 0.15 if target_profit_rate is None else target_profit_rate
 
+        self._update_expected_buy_stock_info()
         self._update_buy()
         self._update_additional_buy()
-        self._update_expected_buy_stock_info()
         self._update_sell()
 
     def _update_buy(self):
